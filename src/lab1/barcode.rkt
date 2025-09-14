@@ -1,5 +1,7 @@
 #lang slideshow
 
+; Упражнение 1.3
+
 (define bar-width 2)
 (define bar-height 100)
 (define separator-height 115)
@@ -95,3 +97,4 @@
    (bar-separator)))
 
 (bar-code-EAN-13 '(5 9 0 1 2 3 4 1 2 3 4 5 7))
+
