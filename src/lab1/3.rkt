@@ -30,8 +30,24 @@
 (define (r-code digit)
   (map (lambda (d)
          (case d
-           [(1) (0)]
-           [else (1)]))
+           [(1) 0]
+           [(0) 1]))
        (l-code digit)))
 
-(l-code 7)
+(define (g-code digit)
+  (reverse (r-code digit)))
+
+(define (bar-encode-with structure digits)
+  (apply
+   append
+   (map
+    (lambda (type digit)
+      (case type
+        [(L) (l-code digit)]
+        [(G) (g-code digit)]
+        [(R) (r-code digit)]
+        [else (error "Unknown code type in structure:" type)]))
+    structure
+    digits)))
+
+(bar-encode-with '(L G R) '(1 2 3))
