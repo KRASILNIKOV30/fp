@@ -16,6 +16,29 @@
    empty
    lst))
 
-(define (my-encode lst))
+(define (gen-sized-list size init generator)
+  (cond
+    [(= size 0) '()]
+    [else (cons
+           init
+           (gen-sized-list
+            (- size 1)
+            (generator init)
+            generator))]))
 
-(my-encode '(a a a a b c c a a d e e e e))
+(define (gen-list init generator)
+  (let ([next (generator init)])
+    (cond
+      [(not next) '()]
+      [else (cons
+             init
+             (gen-list next generator))])))
+
+(define (gen-range start end step)
+  (cond
+    [(> start end) '()]
+    [else (cons
+           start
+           (gen-range (+ start step) end step))]))
+
+(gen-range 0 10 3)
