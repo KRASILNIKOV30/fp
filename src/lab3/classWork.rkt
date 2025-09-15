@@ -109,3 +109,19 @@
 ; (for/list ([i 3] [chunk (stream-chunks (in-naturals 1) 4)]) chunk)
 ; '((1 2 3 4) (5 6 7 8) (9 10 11 12))
 
+(define (stream-lists lst1 lst2)
+  (for/stream ([n1 lst1]
+               [n2 (reverse lst2)])
+    (cons n1 n2)))
+
+(for/list ([x (stream-lists '(1 2 3 4) '(1 2 3 4))]) x)
+
+(define (stream-zigzag strm1 strm2)
+  (stream-cons))
+
+;(for/list ([i 6] [x (stream-zigzag (in-naturals 1) (in-naturals 1))]) x)
+
+; '((1 . 1)
+;  (1 . 2) (2 . 1)
+;  (1 . 3) (2 . 2) (3 . 1))
+
