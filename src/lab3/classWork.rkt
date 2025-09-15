@@ -39,17 +39,6 @@
 
 ;(moving-sum-3 '(1 2 3 4 5 6 7))
 
-(define/match (choose-2 lst)
-  [((cons head tail))
-   (append
-    (for/list ([x tail])
-      (cons head x))
-    (choose-2 tail))]
-  [(empty) empty])
-
-;(choose-2 '(a b c d))
-; '((a . b) (a . c) (a . d) (b . c) (b . d) (c . d))
-
 (define (coprime? lst)
   (for*/and ([n1 lst]
              [n2 lst]
@@ -60,14 +49,21 @@
 ; (coprime? '(8 9 35 11)) ; #t
 
 (define/match (choose lst n)
-  [(lst 2)
-   (choose-2 lst)]
+  [(_ 0) (list empty)]
+  [('() n) empty]
   [((cons head tail) n)
    (append
-    (for/list ([x tail])
+    (for/list ([x (choose tail (- n 1))])
       (cons head x))
-    (choose tail (- n 1)))])
+    (choose tail n))])
 
-(choose '(a b c d e) 3)
+; (choose '(a b c d e) 3)
 ; '((a b c) (a b d) (a b e) (a c d) (a c e) (a d e)
 ;   (b c d) (b c e) (b d e) (c d e))
+
+(define (choose-2 lst)
+  (choose lst 2))
+
+(choose-2 '(a b c d))
+; '((a . b) (a . c) (a . d) (b . c) (b . d) (c . d))
+
