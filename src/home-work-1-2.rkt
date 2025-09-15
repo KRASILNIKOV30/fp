@@ -41,13 +41,13 @@
 
 (define (r-code digit)
   (map (lambda (d)
-         (case d
-           [(1) 0]
-           [(0) 1]))
+         (- 1 d))
        (l-code digit)))
 
 (define (g-code digit)
   (reverse (r-code digit)))
+
+; append-map
 
 (define (bar-encode-with structure digits)
   (apply
@@ -110,6 +110,7 @@
             (generator init)
             generator))]))
 
+;
 (define (gen-list init generator)
   (let ([next (generator init)])
     (cond
@@ -117,6 +118,10 @@
       [else (cons
              init
              (gen-list next generator))])))
+
+(gen-list 10 (lambda (x) (if (< x 0) #f (- x 1))))
+; '(10 9 8 7 6 5 4 3 2 1 0)
+
 
 (define (gen-range start end step)
   (cond
@@ -186,13 +191,12 @@
 ;    '() = '()
 ;
 ; 2. Для непустого списка
-;    обозначим (lambda (x) x) = id
-;    (my-map id '(a b)) = lst
-;    (cons (id 'a) my-map id '(b)) = '(a, b)
-;    (cons 'a (cons (id 'b) (my-map id '()))) = '(a, b)
-;    (cons 'a (cons 'b '())) = '(a, b)
-;    (cons 'a '(b)) = '(a, b)
-;    '(a, b) = '(a, b)
+;    обозначим (lambda (x) x) = id, lst = (cons x xs)
+;    (my-map id (cons x xs)) = lst
+;    (cons (id x) (my-map id xs)) = lst
+;    по предположению индукции:
+;    (cons x xs) = lst
+;    lst = lst
 
 
 ; Докажем, что (map f (map g lst)) = (map (lambda (x) (f (g x))) lst)
@@ -206,25 +210,22 @@
 ;   Следовательно, ПЧ = '()
 ; Вывод: ЛЧ = ПЧ = '()
 ;
-; 2. Для непустого списка lst = '(a b)
+; 2. Для непустого списка lst = (cons x xs)
+; Предположение индукции:
+; (my-map f (my-map g xs)) = (my-map (lambda (y) (f (g y))) xs)
 ; Обозначим (lambda (x) (f (g x))) = comp
-; Левая часть (ЛЧ): (my-map f (my-map g '(a b)))
-;   (my-map g '(a b)) = (cons (g 'a) (my-map g '(b)))
-;   = (cons (g 'a) (cons (g 'b) (my-map g '())))
-;   = (cons (g 'a) (cons (g 'b) '()))
-;   = '( (g a) (g b) )
-;   (my-map f '( (g a) (g b) )) = (cons (f '(g a)) (my-map f '( (g b) )))
-;   = (cons (f '(g a)) (cons (f '(g b)) (my-map f '())))
-;   = (cons (f '(g a)) (cons (f '(g b)) '()))
-;   = '( (f (g a)) (f (g b)) )
-;   Следовательно, ЛЧ = '((f (g a)) (f (g b)))
-; Правая часть (ПЧ): (my-map comp '(a b))
-;   (my-map comp '(a b)) = (cons (comp 'a) (my-map comp '(b)))
-;   = (cons (f (g 'a)) (my-map comp '(b)))
-;   (my-map comp '(b)) = (cons (comp 'b) (my-map comp '()))
-;   = (cons (f (g 'b)) '())
-;   Подставляем обратно:
-;   (cons (f (g 'a)) (cons (f (g 'b)) '()))
-;   = '((f (g a)) (f (g b)))
-;   Следовательно, ПЧ = '((f (g a)) (f (g b)))
-; Вывод: ЛЧ = ПЧ = '((f (g a)) (f (g b)))
+; Левая часть (ЛЧ): (my-map f (my-map g (cons x xs)))
+; (my-map g (cons x xs)) = (cons (g x) (my-map g xs))
+; Подставим это обратно в ЛЧ:
+; ЛЧ = (my-map f (cons (g x) (my-map g xs))) =
+; = (cons (f (g x)) (my-map f (my-map g xs)))
+; По предположению индукции:
+; ЛЧ = (cons (f (g x)) (my-map comp xs))
+;
+; Правая часть (ПЧ): (my-map comp (cons x xs))
+; ПЧ = (cons (comp x) (my-map comp xs))
+; (comp x) = ((lambda (y) (f (g y))) x) = (f (g x))
+; ПЧ = (cons (f (g x)) (my-map comp xs))
+; Вывод:
+; ЛЧ = (cons (f (g x)) (my-map comp xs)) и ПЧ = (cons (f (g x)) (my-map comp xs)).
+; Следовательно, ЛЧ = ПЧ.
