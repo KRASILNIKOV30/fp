@@ -77,3 +77,35 @@
 ; (for/list ([i 10] [f in-tribonacci]) f)
 ; '(0 0 1 1 2 4 7 13 24 44)
 
+(define (stream-takef strm pred)
+  (let ([n (stream-first strm)])
+    (cond
+      [(pred n) (cons
+                 n
+                 (stream-takef
+                  (stream-rest strm)
+                  pred))]
+      [else empty])))
+
+; (stream->list (stream-takef (in-naturals 1) (lambda (x) (< x 10))))
+; '(1 2 3 4 5 6 7 8 9)
+
+(define/match (stream-rest-n strm n)
+  [(strm 0) strm]
+  [(_ _) (stream-rest-n
+         (stream-rest strm)
+         (- n 1))])
+
+(define (stream-chunks strm n)
+  (define (get-chunk strm n)
+    (for/fold ([result empty])
+              ([i n]
+               [el strm])
+      (append result (list el))))
+  (stream-cons
+   (get-chunk strm n)
+   (stream-chunks (stream-rest-n strm n) n)))
+
+; (for/list ([i 3] [chunk (stream-chunks (in-naturals 1) 4)]) chunk)
+; '((1 2 3 4) (5 6 7 8) (9 10 11 12))
+
