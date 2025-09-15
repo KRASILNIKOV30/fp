@@ -64,6 +64,16 @@
 (define (choose-2 lst)
   (choose lst 2))
 
-(choose-2 '(a b c d))
+; (choose-2 '(a b c d))
 ; '((a . b) (a . c) (a . d) (b . c) (b . d) (c . d))
+
+; Упражнение 3.2
+
+(define (trib-stream n1 n2 n3)
+  (stream-cons n1 (trib-stream n2 n3 (+ n1 n2 n3))))
+
+(define in-tribonacci (trib-stream 0 0 1))
+
+; (for/list ([i 10] [f in-tribonacci]) f)
+; '(0 0 1 1 2 4 7 13 24 44)
 
