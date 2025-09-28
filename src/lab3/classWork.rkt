@@ -134,9 +134,28 @@
         (helper strm1 strm2 lst1 lst2 (stream-rest strm)))]))
   (helper strm1 strm2 empty empty empty-stream))
 
-(for/list ([i 10] [x (stream-zigzag (in-naturals 1) (in-naturals 1))]) x)
+;(for/list ([i 10] [x (stream-zigzag (in-naturals 1) (in-naturals 1))]) x)
 
 ; '((1 . 1)
 ;  (1 . 2) (2 . 1)
 ;  (1 . 3) (2 . 2) (3 . 1))
+
+(define (my-stream-map f s)
+  (stream-cons
+   (f (stream-first s))
+   (my-stream-map f (stream-rest s))))
+
+(define (my-stream-take s n)
+  (cond
+    [(= n 0) empty-stream]
+    [else
+     (stream-cons
+      (stream-first s)
+      (my-stream-take (stream-rest s) (- n 1)))]))
+
+(stream->list
+ (my-stream-take (my-stream-map (lambda (x) (* x x))
+                          (in-naturals 1))
+              10))
+; '(1 4 9 16 25 36 49 64 81 100)
 
