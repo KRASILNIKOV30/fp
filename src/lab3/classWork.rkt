@@ -153,9 +153,28 @@
       (stream-first s)
       (my-stream-take (stream-rest s) (- n 1)))]))
 
-(stream->list
- (my-stream-take (my-stream-map (lambda (x) (* x x))
-                          (in-naturals 1))
-              10))
+;(stream->list
+; (my-stream-take (my-stream-map (lambda (x) (* x x))
+;                          (in-naturals 1))
+;              10))
 ; '(1 4 9 16 25 36 49 64 81 100)
 
+(define m 2147483648)
+(define a 1103515245)
+(define c 12345)     
+(define next 123)
+
+(define (rand)
+  (set! next (modulo (+ (* a next) c) m))
+  next)
+
+(rand) ; 472202153
+(rand) ; 1639847214
+(rand) ; 402077903
+(rand) ; 111964764
+(rand) ; 829221221
+(rand) ; 1671059002
+(rand) ; 1507365611
+(rand) ; 180115528
+(rand) ; 80197345
+(rand) ; 1976015878
