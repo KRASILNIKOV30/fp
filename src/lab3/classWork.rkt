@@ -114,12 +114,25 @@
                [n2 (reverse lst2)])
     (cons n1 n2)))
 
-(for/list ([x (stream-lists '(1 2 3 4) '(1 2 3 4))]) x)
+;(for/list ([x (stream-lists '(1 2 3 4) '(1 2 3 4))]) x)
 
-(define (stream-zigzag strm1 strm2)
-  (stream-cons))
+(define (stream-zigzag strm1 strm2 [lst1 empty] [lst2 empty] [strm empty-stream])
+  (cond
+    [(stream-empty? strm)
+     (stream-zigzag
+      (stream-rest strm1)
+      (stream-rest strm2)
+      (append lst1 (list (stream-first strm1)))
+      (append lst2 (list (stream-first strm2)))
+      (stream-lists
+       (append lst1 (list (stream-first strm1)))
+       (append lst2 (list (stream-first strm2)))))]
+    [else
+     (stream-cons
+      (stream-first strm)
+      (stream-zigzag strm1 strm2 lst1 lst2 (stream-rest strm)))]))
 
-;(for/list ([i 6] [x (stream-zigzag (in-naturals 1) (in-naturals 1))]) x)
+(for/list ([i 6] [x (stream-zigzag (in-naturals 1) (in-naturals 1))]) x)
 
 ; '((1 . 1)
 ;  (1 . 2) (2 . 1)
