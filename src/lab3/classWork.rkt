@@ -21,8 +21,8 @@
 (define in-fib (gen-fib 1 1))
 
 (define (fib-generator n1 n2)
-    (yield n1)
-    (fib-generator n2 (+ n1 n2)))
+  (yield n1)
+  (fib-generator n2 (+ n1 n2)))
 
 (define fib-gen
   (generator () (fib-generator 1 1)))
@@ -93,8 +93,8 @@
 (define/match (stream-rest-n strm n)
   [(strm 0) strm]
   [(_ _) (stream-rest-n
-         (stream-rest strm)
-         (- n 1))])
+          (stream-rest strm)
+          (- n 1))])
 
 (define (stream-chunks strm n)
   (define (get-chunk strm n)
@@ -116,23 +116,25 @@
 
 ;(for/list ([x (stream-lists '(1 2 3 4) '(1 2 3 4))]) x)
 
-(define (stream-zigzag strm1 strm2 [lst1 empty] [lst2 empty] [strm empty-stream])
-  (cond
-    [(stream-empty? strm)
-     (stream-zigzag
-      (stream-rest strm1)
-      (stream-rest strm2)
-      (append lst1 (list (stream-first strm1)))
-      (append lst2 (list (stream-first strm2)))
-      (stream-lists
-       (append lst1 (list (stream-first strm1)))
-       (append lst2 (list (stream-first strm2)))))]
-    [else
-     (stream-cons
-      (stream-first strm)
-      (stream-zigzag strm1 strm2 lst1 lst2 (stream-rest strm)))]))
+(define (stream-zigzag strm1 strm2)
+  (define (helper strm1 strm2 lst1 lst2 strm)
+    (cond
+      [(stream-empty? strm)
+       (let ([new-lst1 (append lst1 (list (stream-first strm1)))]
+             [new-lst2 (append lst2 (list (stream-first strm2)))])
+         (helper
+          (stream-rest strm1)
+          (stream-rest strm2)
+          new-lst1
+          new-lst2
+          (stream-lists new-lst1 new-lst2)))]
+      [else
+       (stream-cons
+        (stream-first strm)
+        (helper strm1 strm2 lst1 lst2 (stream-rest strm)))]))
+  (helper strm1 strm2 empty empty empty-stream))
 
-(for/list ([i 6] [x (stream-zigzag (in-naturals 1) (in-naturals 1))]) x)
+(for/list ([i 10] [x (stream-zigzag (in-naturals 1) (in-naturals 1))]) x)
 
 ; '((1 . 1)
 ;  (1 . 2) (2 . 1)
