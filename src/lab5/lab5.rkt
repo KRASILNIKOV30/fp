@@ -31,11 +31,28 @@
 (define-syntax lazy-product
   (syntax-rules ()
     [(lazy-product) 1]
-    [(lazy-product 0 _ ...) 0]
     [(lazy-product x xs ...)
-     (* x (lazy-product xs ...))]))
+     (cond
+       [(= x 0) 0]
+       [else (* x (lazy-product xs ...))])]))
 
 ; (lazy-product 1 2 3 4 5)
 ; 120
-; (lazy-product 1 2 3 0 4 5 (error "не вызывается"))
+; (lazy-product 1 2 3 (- 1 1) 4 5 (error "не вызывается"))
 ; 0
+
+; Упражнение 5.2 (Честное ветвление).
+
+(define-syntax cond-all
+  (syntax-rules ()
+    [(cond-all) (void)]
+    [(cond-all [condition branch] branches ...)
+     (begin
+       (if condition branch (void))
+       (cond-all branches ...))]))
+
+(let ([n 15])
+  (cond-all
+   [(= 0 (modulo n 3)) (displayln 'fizz)]
+   [(= 0 (modulo n 5)) (displayln 'buzz)]
+   [(= 1 (modulo n 3)) (displayln 'error)]))
