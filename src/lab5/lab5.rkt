@@ -21,9 +21,9 @@
     [(implies) #t]
     [(implies x) #t]
     [(implies a b xs ...)
-     (cond
-       [(and a (not b)) #f]
-       [else (implies xs ...)])]))
+     (and
+      (or (not a) b)
+      (implies xs ...))]))
 
 (implies (< 1 5) (< 1 10) (< 0 10))
 ; #t
