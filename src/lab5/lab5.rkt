@@ -25,5 +25,17 @@
       (or (not a) b)
       (implies xs ...))]))
 
-(implies (< 1 5) (< 1 10) (< 0 10))
+; (implies (< 1 5) (< 1 10) (< 0 10))
 ; #t
+
+(define-syntax lazy-product
+  (syntax-rules ()
+    [(lazy-product) 1]
+    [(lazy-product 0 _ ...) 0]
+    [(lazy-product x xs ...)
+     (* x (lazy-product xs ...))]))
+
+; (lazy-product 1 2 3 4 5)
+; 120
+; (lazy-product 1 2 3 0 4 5 (error "не вызывается"))
+; 0
