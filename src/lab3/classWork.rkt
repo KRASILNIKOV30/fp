@@ -32,21 +32,13 @@
             [b (rest lst)])
     (< a b)))
 
+; for/list (исправлено)
 (define (moving-sum-3 lst)
-  (for/fold ([result empty])
-            ([n1 lst] [n2 (cdr lst)] [n3 (cddr lst)])
-    (append result (list (+ n1 n2 n3)))))
+  (for/list
+      ([n1 lst] [n2 (cdr lst)] [n3 (cddr lst)])
+    (+ n1 n2 n3)))
 
-;(moving-sum-3 '(1 2 3 4 5 6 7))
-
-(define (coprime? lst)
-  (for*/and ([n1 lst]
-             [n2 lst]
-             #:unless (= n1 n2))
-    (= (gcd n1 n2) 1)))
-
-; (coprime? '(2 3 5 7 9)) ; #f
-; (coprime? '(8 9 35 11)) ; #t
+; (moving-sum-3 '(1 2 3 4 5 6 7))
 
 (define/match (choose lst n)
   [(_ 0) (list empty)]
@@ -66,6 +58,17 @@
 
 ; (choose-2 '(a b c d))
 ; '((a . b) (a . c) (a . d) (b . c) (b . d) (c . d))
+
+; исправлено
+(define (coprime? lst)
+  (for/and ([pair (choose-2 lst)])
+            (= (gcd
+                (first pair)
+                (second pair))
+               1)))
+
+(coprime? '(2 3 5 7 9)) ; #f
+(coprime? '(8 9 35 11)) ; #t
 
 ; Упражнение 3.2
 
@@ -114,7 +117,7 @@
                [n2 (reverse lst2)])
     (cons n1 n2)))
 
-;(for/list ([x (stream-lists '(1 2 3 4) '(1 2 3 4))]) x)
+; (for/list ([x (stream-lists '(1 2 3 4) '(1 2 3 4))]) x)
 
 (define (stream-zigzag strm1 strm2)
   (define (helper strm1 strm2 lst1 lst2 strm)
@@ -159,22 +162,57 @@
 ;              10))
 ; '(1 4 9 16 25 36 49 64 81 100)
 
+; Доказательство
+
+; Предположение индукции:
+; (stream-take (stream-map f s) n) = (stream-map f (stream-take s n))
+
+; Базовый случай: n = 0
+; 1. (stream-take (stream-map f s) 0)= empty-stream
+;
+; 2. (stream-map f (stream-take s 0))
+; = (stream-map f empty-stream) = empty-stream
+; => empty-stream = empty-stream
+
+; Левая часть для n = k+1:
+; (stream-take (stream-map f s) (+ k 1))
+; = (stream-cons (f (stream-first s)) 
+;                (stream-take (stream-map f (stream-rest s)) k))
+
+; Правая часть для n = k+1:
+; (stream-map f (stream-take s (+ k 1)))
+; = (stream-map f (stream-cons (stream-first s)   
+;                             (stream-take (stream-rest s) k)))
+; = (stream-cons (f (stream-first s))              
+;                (stream-map f (stream-take (stream-rest s) k)))
+
+; По предположению индукции:
+; (stream-take (stream-map f (stream-rest s)) k) = (stream-map f (stream-take (stream-rest s) k))
+
+; Следовательно, левая и правая части равны 
+
+; Сделать через генератор (исправлено)
 (define m 2147483648)
 (define a 1103515245)
 (define c 12345)     
-(define next 123)
 
-(define (rand)
-  (set! next (modulo (+ (* a next) c) m))
-  next)
+(define (rand-gen init)
+  (begin
+    (let ([next (modulo (+ (* a init) c) m)])
+      (begin
+        (yield next)
+        (rand-gen next)))))
 
-(rand) ; 472202153
-(rand) ; 1639847214
-(rand) ; 402077903
-(rand) ; 111964764
-(rand) ; 829221221
-(rand) ; 1671059002
-(rand) ; 1507365611
-(rand) ; 180115528
-(rand) ; 80197345
-(rand) ; 1976015878
+(define rand
+  (generator () (rand-gen 1)))
+
+;(rand) ; 472202153
+;(rand) ; 1639847214
+;(rand) ; 402077903
+;(rand) ; 111964764
+;(rand) ; 829221221
+;(rand) ; 1671059002
+;(rand) ; 1507365611
+;(rand) ; 180115528
+;(rand) ; 80197345
+;(rand) ; 1976015878
