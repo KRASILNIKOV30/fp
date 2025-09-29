@@ -51,8 +51,23 @@
        (if condition branch (void))
        (cond-all branches ...))]))
 
-(let ([n 15])
-  (cond-all
-   [(= 0 (modulo n 3)) (displayln 'fizz)]
-   [(= 0 (modulo n 5)) (displayln 'buzz)]
-   [(= 1 (modulo n 3)) (displayln 'error)]))
+;(let ([n 15])
+;  (cond-all
+;   [(= 0 (modulo n 3)) (displayln 'fizz)]
+;   [(= 0 (modulo n 5)) (displayln 'buzz)]
+;   [(= 1 (modulo n 3)) (displayln 'error)]))
+
+(define-syntax cond-all/list
+  (syntax-rules ()
+    [(cond-all/list) empty]
+    [(cond-all/list [condition branch] branches ...)
+     (cond
+       [condition (cons branch (cond-all/list branches ...))]
+       [else (cond-all/list branches ...)])]))
+
+;(let ([n 15])
+;  (cond-all/list
+;   [(= 0 (modulo n 3)) 'fizz]
+;   [(= 0 (modulo n 5)) 'buzz]
+;   [(= 1 (modulo n 5)) 'error]))
+; '(fizz buzz)
