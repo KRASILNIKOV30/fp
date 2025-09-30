@@ -71,3 +71,33 @@
 ;   [(= 0 (modulo n 5)) 'buzz]
 ;   [(= 1 (modulo n 5)) 'error]))
 ; '(fizz buzz)
+
+(define-syntax match-all
+  (syntax-rules ()
+    [(match-all lst) empty]
+    [(match-all lst [patt branch] branches ...)
+     (match lst
+       [patt (cons branch (match-all lst branches ...))]
+       [_ (match-all lst branches ...)])]))
+
+(define-syntax-rule (match-all/append lst branches ...)
+  (apply append (match-all lst branches ...)))
+
+(let ([lst '(a b b a b b b a a)])
+  (match-all/append lst
+                    [(list l ... x x x r ...) (list (cons 3 x))]
+                    [(list l ... x x r ...)
+                     (list (cons 2 x))]))
+
+; '((3 . b) (2 . b) (2 . a))
+
+; Упражнение 5.3 (Цикл while)
+
+;(define-syntax while/list
+;  (syntax-rules ()
+;    []))
+
+;(while/list (current 1)
+;            (< current 100)
+;            (* current 2))
+; '(1 2 4 8 16 32 64)
