@@ -201,6 +201,6 @@
 
 (find-counterexample
  (forall/property ([x (random-real 0 1)]
-                    [y (random-real 0 x)]
-                    [z (random-real 0 y)])
-                   (> x (+ y z))))
+                   [y (random-real 0 x)]
+                   [z (random-real 0 y)])
+                  (> x (+ y z))))
