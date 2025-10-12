@@ -19,8 +19,21 @@
   (lambda (g)
     (let ([next-g (next-rng g)])
       (cons
-       (+ i (round (* (- j i) (/ (rng-seed next-g) m))))
+       (+ i (floor (* (- j i) (/ (rng-seed next-g) m))))
        next-g))))
 
-((random-integer 7 77) (make-rng 19))
+(define (stream-random fn g)
+  (let ([res (fn g)])
+    (stream-cons
+     (car res)
+     (stream-random fn (cdr res)))))
 
+(define (sample fn [n 5] [g (make-rng 709)])
+  (let ([res (fn g)])
+    (cond
+      [(zero? n) empty]
+      [else
+       (cons
+        (car res)
+        (sample fn (sub1 n) (cdr res)))])))                    
+          
