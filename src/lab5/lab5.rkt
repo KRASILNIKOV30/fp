@@ -1,4 +1,5 @@
 #lang slideshow
+(require macro-debugger/stepper)
 
 (define/match (palindrome? lst)
   [((list a b ... c))
@@ -83,21 +84,37 @@
 (define-syntax-rule (match-all/append lst branches ...)
   (apply append (match-all lst branches ...)))
 
-(let ([lst '(a b b a b b b a a)])
-  (match-all/append lst
-                    [(list l ... x x x r ...) (list (cons 3 x))]
-                    [(list l ... x x r ...)
-                     (list (cons 2 x))]))
+;(let ([lst '(a b b a b b b a a)])
+;  (match-all/append lst
+;                    [(list l ... x x x r ...) (list (cons 3 x))]
+;                    [(list l ... x x r ...)
+;                     (list (cons 2 x))]))
 
 ; '((3 . b) (2 . b) (2 . a))
 
 ; Упражнение 5.3 (Цикл while)
 
-;(define-syntax while/list
-;  (syntax-rules ()
-;    []))
+(define-syntax while/list
+  (syntax-rules ()
+    [(while/list (id initial-value) condition update-expr)
+     (let loop ([id initial-value]
+                [result '()])
+       (cond
+         [condition (loop update-expr (cons id result))]
+         [else (reverse result)]))]))
 
 ;(while/list (current 1)
 ;            (< current 100)
 ;            (* current 2))
 ; '(1 2 4 8 16 32 64)
+
+(define-syntax-rule (apply-lazy fn arg ...)
+  (fn (lambda () arg) ...))
+
+(define (lazy-and x y)
+  (cond
+    [(x) (y)]
+    [else #f]))
+
+(apply-lazy lazy-and (< 3 2) (error "не вызывается"))
+
