@@ -98,15 +98,12 @@
 
 ; через random-cons
 (define (random-list-of-size random-fn size)
-  (lambda (g)
-    (let-values ([(final-acc final-g)
-                  (for/fold ([acc '()] [current-g g])
-                            ([i (in-range size)])
-                    (let* ([res (random-fn current-g)]
-                           [val (car res)]
-                           [next-g (cdr res)])
-                      (values (cons val acc) next-g)))])
-      (cons final-acc final-g))))
+  (cond
+    [(zero? size) (random-constant '())]
+    [else
+     (random-cons
+      random-fn
+      (random-list-of-size random-fn (sub1 size)))]))
 
 (define (random-bind random-val-fn func)
   (lambda (g)
