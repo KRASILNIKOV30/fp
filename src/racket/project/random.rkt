@@ -96,6 +96,7 @@
    (lambda (index) (list-ref lst index))
    (random-integer 0 (length lst))))
 
+; через random-cons
 (define (random-list-of-size random-fn size)
   (lambda (g)
     (let-values ([(final-acc final-g)
@@ -173,6 +174,7 @@
        (= (+ x (+ y z))
           (+ (+ x y) z))))))
 
+; можно через stream-random
 (define (find-counterexample prop [n 1000])
   (let ([generator (property-random-value prop)]
         [predicate (property-predicate prop)])
@@ -189,7 +191,7 @@
               (loop (sub1 tries-left) next-g)]               
              [else (list val)]))]))))
 
-(define-syntax (forall/property stx)
+(define-syntax (forall*/property stx)
   (syntax-case stx ()
     [(_ ([var gen] ...) body ...)
      #`(property
@@ -200,7 +202,7 @@
             body ...)))]))
 
 (find-counterexample
- (forall/property ([x (random-real 0 1)]
+ (forall*/property ([x (random-real 0 1)]
                    [y (random-real 0 x)]
                    [z (random-real 0 y)])
                   (> x (+ y z))))
