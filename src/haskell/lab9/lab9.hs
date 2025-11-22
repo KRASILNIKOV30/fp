@@ -9,13 +9,13 @@ import Text.Read (readMaybe)
 echo :: IO ()
 echo = do
   line <- getLine
-  print line
+  putStrLn line
   echo
 
 shoutEcho :: IO ()
 shoutEcho = do
   line <- map toUpper <$> getLine
-  print line
+  putStrLn line
   shoutEcho
 
 echoByWord :: IO ()
@@ -85,11 +85,11 @@ sequenceResultIO (action : actions) = do
 data Step a = Stop | Next a
 
 unfoldIO :: (a -> IO (Step a)) -> a -> IO [a]
-unfoldIO f init = do
+unfoldIO f init = (init :) <$> do
   res <- f init
   case res of
-    Next a -> (init :) <$> unfoldIO f a
-    Stop -> return [init]
+    Next a -> unfoldIO f a
+    Stop -> return []
 
 {-# HLINT ignore "Use foldM" #-}
 forStateIO :: s -> [a] -> (s -> a -> IO s) -> IO s

@@ -11,6 +11,7 @@ newtype Item = Item {getItem :: String} deriving (Show, Read)
 
 newtype TodoState = TodoState {getTodoState :: [Item]} deriving (Show, Read)
 
+-- добавить currentState
 data AppState = AppState {getHistory :: [TodoState]} deriving (Show, Read)
 
 initialState :: AppState
@@ -61,9 +62,10 @@ modifyCurrentState _ (AppState []) = initialState
 
 handleAddItem :: Item -> Handler
 handleAddItem item state =
-  let response = "Добавлено дело: " ++ getItem item
-      updateFunc (TodoState items) = TodoState (item : items)
-   in updateState response (modifyCurrentState updateFunc state)
+  updateState response (modifyCurrentState updateFunc state)
+  where
+    response = "Добавлено дело: " ++ getItem item
+    updateFunc (TodoState items) = TodoState (item : items)
 
 deleteAt :: Int -> [a] -> Maybe (a, [a])
 deleteAt _ [] = Nothing
@@ -98,7 +100,7 @@ handlePureRequest request =
     AddItem item -> handleAddItem item
     RemoveItem i -> handleRemoveItem i
     Undo -> handleUndo
-    _ -> Response "Внутренняя ошибка: этот запрос не должен был попасть в чистый хендлер." . Just
+    _ -> Response "Ошибка" . Just
 
 saveStateToFile :: AppState -> IO ()
 saveStateToFile (AppState (current : _)) = writeFile saveFile (show current)
