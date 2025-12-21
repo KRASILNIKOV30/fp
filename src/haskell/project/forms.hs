@@ -1,7 +1,10 @@
+{-# LANGUAGE RecordWildCards #-}
+
 import Control.Monad (ap)
 import Data.List (intercalate)
 import Data.Time (Day)
 import Text.Read (readMaybe)
+import Distribution.TestSuite (Result)
 
 -- Вид ошибок при разборе ввода пользователя.
 data InputError
@@ -327,19 +330,14 @@ shortName (FullName name) =
 
 user :: Form User
 user = do
-  nameStr <- textField "ФИО"
-  let fullName = FullName nameStr
-  let short = shortName fullName
-  subform
-    short
-    ( do
-        phone <- field "Телефон" phoneForm
-        birthday <- field "Дата рождения" (optionalForm readForm)
-        email <- field "Email" (optionalForm emailForm)
-        role <- field "Роль" readForm
+  userName <- FullName <$> textField "ФИО"
+  subform (shortName userName) $ do
+    userPhone <- field "Телефон" phoneForm
+    userBirthday <- field "Дата рождения" (optionalForm readForm)
+    userEmail <- field "Email" (optionalForm emailForm)
+    userRole <- field "Роль" readForm
 
-        return (User fullName phone birthday email role)
-    )
+    return User {..}
 
 type Grade = Int
 
@@ -390,26 +388,27 @@ singleChoice question options correct =
             (numericField prompt)
         )
 
+multyChoiese :: String -> [String] -> CorrectAnswers String -> Quiz String -> Maybe Monad Result
+multyChoiese question -> options correct 
+
 emptyQuiz :: a -> Quiz a
 emptyQuiz val = Quiz (return (0, val))
 
 mapQuiz :: (a -> b) -> Quiz a -> Quiz b
 mapQuiz f (Quiz form) =
-  Quiz
-    ( do
-        (grade, val) <- form
-        return (grade, f val)
-    )
+  Quiz $ do
+    (grade, val) <- form
+    return (grade, f val)
+    
 
 bindQuiz :: Quiz a -> (a -> Quiz b) -> Quiz b
 bindQuiz (Quiz formA) f =
-  Quiz
-    ( do
-        (gradeA, valA) <- formA
-        let (Quiz formB) = f valA
-        (gradeB, valB) <- formB
-        return (gradeA + gradeB, valB)
-    )
+  Quiz $ do
+    (gradeA, valA) <- formA
+    let (Quiz formB) = f valA
+    (gradeB, valB) <- formB
+    return (gradeA + gradeB, valB)
+  
 
 instance Functor Quiz where
   fmap = mapQuiz
@@ -421,7 +420,6 @@ instance Applicative Quiz where
 instance Monad Quiz where
   (>>=) = bindQuiz
 
--- Тест о Haskell
 miniQuiz :: Quiz ()
 miniQuiz = do
   _ <- trueOrFalse "В Haskell переменные изменяемые?" (CorrectIs False)
