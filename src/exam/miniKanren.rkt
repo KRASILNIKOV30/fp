@@ -39,16 +39,10 @@
 
 (define (wordso sentence words)
   (conde
-   ;; Базовый случай: предложение закончилось
    [(== sentence '())]
-    
-   ;; Рекурсивный шаг
    [(fresh (word rest)
-           ;; Пытаемся разбить sentence на префикс (word) и остаток (rest)
            (appendo word rest sentence)
-           ;; Префикс должен быть одним из допустимых слов
            (membero word words)
-           ;; Остаток должен быть также составлен из слов
            (wordso rest words))]))
 
 
