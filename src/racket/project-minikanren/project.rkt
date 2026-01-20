@@ -138,10 +138,9 @@
            (typed-expro context e1 'Int)
            (typed-expro context e2 'Int))]
    ; применение f e
-   [(fresh (f e X T)
+   [(fresh (f e X)
            (== expr `(,f ,e))
-           (== type T)
-           (typed-expro context f `(,X -> ,T))
+           (typed-expro context f `(,X -> ,type))
            (typed-expro context e X))]
    ; условное выражение
    [(fresh (e1 e2 e3 T)

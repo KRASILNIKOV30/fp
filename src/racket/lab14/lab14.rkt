@@ -41,19 +41,6 @@
 (run* (x xs) (inserto x xs '(1 2 3)))
 (run* (x xs) (inserto x xs '(a b a c)))
 
-(defrel (rembero x ls out)
-  (conde
-   [(== ls '()) (== out '())]
-   [(fresh (a d)
-           (== ls `(,a . ,d))
-           (== x a)
-           (== out d))]
-   [(fresh (a d res)
-           (== ls `(,a . ,d))
-           (=/= x a)
-           (== out `(,a . ,res))
-           (rembero x d res))]))
-
 (defrel (anagramo xs ys)
   (conde
    [(== xs '()) (== ys '())]

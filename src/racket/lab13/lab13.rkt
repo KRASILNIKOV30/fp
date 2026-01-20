@@ -191,12 +191,12 @@
 
 (defrel (train-patho from to path)
   (conde
-    [(direct-traino from to)
-     (== path `(,from ,to))]
-    [(fresh (mid rest)
-       (direct-traino from mid)
-       (train-patho mid to rest)
-       (== path `(,from . ,rest)))]))
+   [(direct-traino from to)
+    (== path `(,from ,to))]
+   [(fresh (mid rest)
+           (direct-traino from mid)
+           (== path `(,from . ,rest))
+           (train-patho mid to rest))]))
 
 (displayln "---train-patho---")
 (run 1 (path) (train-patho 'Люберцы 'Химки path))
